@@ -1,3 +1,6 @@
+* Fri Dec 16 2011 Carsten Munk <carsten.munk@gmail.com> - 4.26
+- Fix problem appearing with rpm 4.9.1.2
+ 
 * Thu Feb 12 2009 Anas Nashif <anas.nashif@intel.com> 4.26
 - Split from main package
 

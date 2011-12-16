@@ -43,6 +43,7 @@ rm -rf $RPM_BUILD_ROOT
 cd python
 %{__python} setup.py install -O1 --skip-build --root ${RPM_BUILD_ROOT}
 %{__install} -d ${RPM_BUILD_ROOT}%{_datadir}/%{name}
+%{__install} -d ${RPM_BUILD_ROOT}/%{_docdir}/python-magic-%{version}
 %{__install} -D example.py ${RPM_BUILD_ROOT}/%{_docdir}/python-magic-%{version}
 
 %clean
