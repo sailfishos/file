@@ -1,3 +1,7 @@
+* Sun May 19 2013 D Wadsworth <letters.random13@gmail.com> - 5.14
+- Update to 5.14
+- remove all patches
+
 * Fri Dec 16 2011 Carsten Munk <carsten.munk@gmail.com> - 4.26
 - Fix problem appearing with rpm 4.9.1.2
  
