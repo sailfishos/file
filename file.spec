@@ -9,6 +9,7 @@ Release: 1
 License: BSD
 Group: Applications/File
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
+Patch0: file-aarch64.patch
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}
@@ -45,6 +46,7 @@ necessary for developing programs using libmagic.
 %prep
 # Don't use -b -- it will lead to poblems when compiling magic file
 %setup -q
+%patch0 -p1
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \
