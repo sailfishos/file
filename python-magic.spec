@@ -9,6 +9,17 @@ Release: 1
 License: BSD
 Group: System/Libraries
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
+Patch0: file-aarch64.patch
+Patch4: file-5.14-CVE-2014-1943.patch
+Patch5: file-5.14-CVE-2014-2270.patch
+Patch6: file-5.14-CVE-2013-7345.patch
+Patch7: file-5.14-CVE-2014-0207.patch
+Patch8: file-5.14-CVE-2014-3478.patch
+Patch9: file-5.14-CVE-2014-3479.patch
+Patch10: file-5.14-CVE-2014-3480.patch
+Patch11: file-5.14-CVE-2014-3487.patch
+Patch12: file-5.14-CVE-2014-3538.patch
+
 URL: http://www.darwinsys.com/file/
 
 Requires: file >= %{version}
@@ -23,7 +34,26 @@ file(1) command.
 %prep
 # Don't use -b -- it will lead to poblems when compiling magic file
 %setup -q -n file-%{version}
-
+# file-aarch64.patch
+%patch0 -p1
+# file-5.14-CVE-2014-1943.patch
+%patch4 -p1
+# file-5.14-CVE-2014-2270.patch
+%patch5 -p1
+# file-5.14-CVE-2013-7345.patch
+%patch6 -p1
+# file-5.14-CVE-2014-0207.patch
+%patch7 -p1
+# file-5.14-CVE-2014-3478.patch
+%patch8 -p1
+# file-5.14-CVE-2014-3479.patch
+%patch9 -p1
+# file-5.14-CVE-2014-3480.patch
+%patch10 -p1
+# file-5.14-CVE-2014-3487.patch
+%patch11 -p1
+# file-5.14-CVE-2014-3538.patch
+%patch12 -p1
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \
