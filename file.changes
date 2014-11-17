@@ -1,3 +1,6 @@
+* Mon Nov 17 2014 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 5.14-2
+- Fix: CVE-2014-3587 and CVE-2014-3710
+
 * Wed Aug 13 2014 Davide Bettio <davide.bettio@ispirata.com> - 5.14
 - Fix: CVE-2013-7345, CVE-2014-1943, CVE-2014-2270, CVE-2014-0207, CVE-2014-3478, 
   CVE-2014-3479, CVE-2014-3480, CVE-2014-3487, CVE-2014-3538

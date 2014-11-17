@@ -5,7 +5,7 @@
 Summary: A utility for determining file types
 Name: file
 Version: 5.14
-Release: 1
+Release: 2
 License: BSD
 Group: Applications/File
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
@@ -19,6 +19,8 @@ Patch9: file-5.14-CVE-2014-3479.patch
 Patch10: file-5.14-CVE-2014-3480.patch
 Patch11: file-5.14-CVE-2014-3487.patch
 Patch12: file-5.14-CVE-2014-3538.patch
+Patch13: file-5.14-CVE-2014-3587.patch
+Patch14: file-5.14-CVE-2014-3710.patch
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}
@@ -75,6 +77,10 @@ necessary for developing programs using libmagic.
 %patch11 -p1
 # file-5.14-CVE-2014-3538.patch
 %patch12 -p1
+# file-5.14-CVE-2014-3587.patch
+%patch13 -p1
+# file-5.14-CVE-2014-3710.patch
+%patch14 -p1
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \
