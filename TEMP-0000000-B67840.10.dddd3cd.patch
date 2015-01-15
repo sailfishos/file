@@ -1,0 +1,26 @@
+Subject: Fix parameter options
+Upstream-Author: Christos Zoulas <christos@zoulas.com>
+Date: Thu Dec 11 01:26:41 2014 +0000
+Origin: FILE5_21 [dddd3cd]
+Last-Update: 2015-01-05
+
+(prequisite for TEMP-0000000-B67840)
+
+diff --git a/src/file_opts.h b/src/file_opts.h
+index 4245447..fc57dc3 100644
+--- a/src/file_opts.h
++++ b/src/file_opts.h
+@@ -43,8 +43,12 @@ OPT('0', "print0", 0, "               terminate filenames with ASCII NUL\n")
+ #if defined(HAVE_UTIME) || defined(HAVE_UTIMES)
+ OPT('p', "preserve-date", 0, "        preserve access times on files\n")
+ #endif
++OPT('P', "parameter", 0, "            set file engine parameter limits\n"
++    "                               indir        15 recursion limit for indirection\n"
++    "                               name         30 use limit for name/use magic\n"
++    "                               elf_phnum   128 max ELF prog sections processed\n"
++    "                               elf_shnum 32768 max ELF sections processed\n")
+ OPT('r', "raw", 0, "                  don't translate unprintable chars to \\ooo\n")
+-OPT('R', "recursion", 0, "            set maximum recursion level\n")
+ OPT('s', "special-files", 0, "        treat special (block/char devices) files as\n"
+     "                             ordinary ones\n")
+ OPT('C', "compile", 0, "              compile file specified by -m\n")

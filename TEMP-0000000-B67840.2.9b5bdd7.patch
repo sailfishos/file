@@ -1,0 +1,85 @@
+Subject: Add PaX note
+Upstream-Author: Christos Zoulas <christos@zoulas.com>
+Date: Fri Sep 20 00:39:43 2013 +0000
+Origin: FILE5_14-67-g9b5bdd7
+Last-Update: 2015-01-05
+
+(prequisite for TEMP-0000000-B67840)
+
+Index: file-5.14/src/readelf.c
+===================================================================
+--- file-5.14.orig/src/readelf.c
++++ file-5.14/src/readelf.c
+@@ -468,6 +468,36 @@ donote(struct magic_set *ms, void *vbuf,
+ 	    *flags |= FLAGS_DID_BUILD_ID;
+ 	}
+ 
++	if (namesz == 4 && strcmp((char *)&nbuf[noff], "PaX") == 0 &&
++	    xnh_type == NT_NETBSD_PAX && descsz == 4) {
++		static const char *pax[] = {
++		    "+mprotect",
++		    "-mprotect",
++		    "+segvguard",
++		    "-segvguard",
++		    "+ASLR",
++		    "-ASLR",
++		};
++		uint32_t desc;
++		size_t i;
++		int did = 0;
++
++		(void)memcpy(&desc, &nbuf[doff], sizeof(desc));
++		desc = elf_getu32(swap, desc);
++
++		if (desc && file_printf(ms, ", PaX: ") == -1)
++			return size;
++
++		for (i = 0; i < __arraycount(pax); i++) {
++			if (((1 << i) & desc) == 0)
++				continue;
++			if (file_printf(ms, "%s%s", did++ ? "," : "",
++			    pax[i]) == -1)
++				return size;
++		}
++		*flags |= FLAGS_DID_BUILD_ID;
++	}
++
+ 	if (namesz == 7 && strcmp((char *)&nbuf[noff], "NetBSD") == 0 &&
+ 	    xnh_type == NT_NETBSD_VERSION && descsz == 4) {
+ 		uint32_t desc;
+@@ -684,6 +714,7 @@ core:
+ 
+ 	default:
+ 		if (xnh_type == NT_PRPSINFO && *flags & FLAGS_IS_CORE) {
++/*###709 [cc] warning: declaration of 'i' shadows previous non-variable%%%*/
+ 			size_t i, j;
+ 			unsigned char c;
+ 			/*
+Index: file-5.14/src/readelf.h
+===================================================================
+--- file-5.14.orig/src/readelf.h
++++ file-5.14/src/readelf.h
+@@ -255,6 +255,23 @@ typedef struct {
+  */
+ #define	NT_GNU_BUILD_ID		3
+ 
++/*
++ * NetBSD-specific note type: PaX.
++ * There should be 1 NOTE per executable.
++ * name: PaX\0
++ * namesz: 4
++ * desc:
++ *	word[0]: capability bitmask
++ * descsz: 4
++ */
++#define NT_NETBSD_PAX		3
++#define NT_NETBSD_PAX_MPROTECT		0x01	/* Force enable Mprotect */
++#define NT_NETBSD_PAX_NOMPROTECT	0x02	/* Force disable Mprotect */
++#define NT_NETBSD_PAX_GUARD		0x04	/* Force enable Segvguard */
++#define NT_NETBSD_PAX_NOGUARD		0x08	/* Force disable Servguard */
++#define NT_NETBSD_PAX_ASLR		0x10	/* Force enable ASLR */
++#define NT_NETBSD_PAX_NOASLR		0x20	/* Force disable ASLR */
++
+ /* SunOS 5.x hardware/software capabilities */
+ typedef struct {
+ 	Elf32_Word	c_tag;
