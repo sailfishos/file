@@ -19,6 +19,29 @@ Patch9: file-5.14-CVE-2014-3479.patch
 Patch10: file-5.14-CVE-2014-3480.patch
 Patch11: file-5.14-CVE-2014-3487.patch
 Patch12: file-5.14-CVE-2014-3538.patch
+Patch13: file-5.14-CVE-2014-3587.patch
+Patch14: file-5.14-CVE-2014-3710.patch
+Patch15: CVE-2014-8117.1.0de3251.patch
+Patch16: TEMP-0000000-B67840.2.9b5bdd7.patch
+Patch17: TEMP-0000000-B67840.3.c8451af.patch
+Patch18: TEMP-0000000-C482B4.59e6383.patch
+Patch19: CVE-2014-8116.1.b4c0114.patch
+Patch20: CVE-2014-8116.2.d7cdad0.patch
+Patch21: CVE-2014-8117.3.6f737dd.patch
+Patch22: TEMP-0000000-B67840.4.8a90571.patch
+Patch23: CVE-2014-8117.4.90018fe.patch
+Patch24: CVE-2014-8117.5.5063ca3.patch
+Patch25: TEMP-0000000-B67840.5.6ce24f3.patch
+Patch26: TEMP-0000000-B67840.6.0056ec3.patch
+Patch27: TEMP-0000000-B67840.7.09e4162.patch
+Patch28: TEMP-0000000-B67840.8.af444af.patch
+Patch29: CVE-2014-8117.6.6bf4527.patch
+Patch30: TEMP-0000000-B67840.9.68bd843.patch
+Patch31: TEMP-0000000-B67840.10.dddd3cd.patch
+Patch32: TEMP-0000000-B67840.11.445c8fb.patch
+Patch33: TEMP-0000000-B67840.12.ce90e05.patch
+Patch34: TEMP-0000000-E110B2.65437ce.patch
+Patch35: fix_case_file_use.patch
 
 URL: http://www.darwinsys.com/file/
 
@@ -54,6 +77,52 @@ file(1) command.
 %patch11 -p1
 # file-5.14-CVE-2014-3538.patch
 %patch12 -p1
+# file-5.14-CVE-2014-3587.patch
+%patch13 -p1
+# file-5.14-CVE-2014-3710.patch
+%patch14 -p1
+#CVE-2014-8117.1.0de3251.patch
+%patch15 -p1
+#TEMP-0000000-B67840.2.9b5bdd7.patch
+%patch16 -p1
+#TEMP-0000000-B67840.3.c8451af.patch
+%patch17 -p1
+#TEMP-0000000-C482B4.59e6383.patch
+%patch18 -p1
+#CVE-2014-8116.1.b4c0114.patch
+%patch19 -p1
+#CVE-2014-8116.2.d7cdad0.patch
+%patch20 -p1
+#CVE-2014-8117.3.6f737dd.patch
+%patch21 -p1
+#TEMP-0000000-B67840.4.8a90571.patch
+%patch22 -p1
+#CVE-2014-8117.4.90018fe.patch
+%patch23 -p1
+#CVE-2014-8117.5.5063ca3.patch
+%patch24 -p1
+#TEMP-0000000-B67840.5.6ce24f3.patch
+%patch25 -p1
+#TEMP-0000000-B67840.6.0056ec3.patch
+%patch26 -p1
+#TEMP-0000000-B67840.7.09e4162.patch
+%patch27 -p1
+#TEMP-0000000-B67840.8.af444af.patch
+%patch28 -p1
+#CVE-2014-8117.6.6bf4527.patch
+%patch29 -p1
+#TEMP-0000000-B67840.9.68bd843.patch
+%patch30 -p1
+#TEMP-0000000-B67840.10.dddd3cd.patch
+%patch31 -p1
+#TEMP-0000000-B67840.11.445c8fb.patch
+%patch32 -p1
+#TEMP-0000000-B67840.12.ce90e05.patch
+%patch33 -p1
+#TEMP-0000000-E110B2.65437ce.patch
+%patch34 -p1
+#fix_case_file_use.patch
+%patch35 -p1
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \

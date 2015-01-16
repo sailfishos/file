@@ -1,0 +1,28 @@
+Subject: Put the changes in the original file not the generated file
+Upstream-Author: Christos Zoulas <christos@zoulas.com>
+Date: Mon Dec 1 13:50:58 2014 +0000
+Origin: FILE5_20-40-g09e4162
+Last-Update: 2015-01-05
+
+(prequisite for TEMP-0000000-B67840)
+
+Index: file-5.14/src/magic.h
+===================================================================
+--- file-5.14.orig/src/magic.h
++++ file-5.14/src/magic.h
+@@ -102,11 +102,10 @@ int magic_check(magic_t, const char *);
+ int magic_list(magic_t, const char *);
+ int magic_errno(magic_t);
+ 
+-#define MAGIC_PARAM_INDIR_RECURSION	0
+-#define MAGIC_PARAM_NAME_RECURSION	1
+-#define MAGIC_PARAM_NAME_MAX		2
+-#define MAGIC_PARAM_PHNUM_MAX		3
+-#define MAGIC_PARAM_SHNUM_MAX		4
++#define MAGIC_PARAM_INDIR_MAX		0
++#define MAGIC_PARAM_NAME_MAX		1
++#define MAGIC_PARAM_ELF_PHNUM_MAX	2
++#define MAGIC_PARAM_ELF_SHNUM_MAX	3
+ 
+ int magic_setparam(magic_t, int, const void *);
+ int magic_getparam(magic_t, int, void *);

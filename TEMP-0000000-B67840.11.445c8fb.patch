@@ -1,0 +1,47 @@
+Subject: Bail out on partial reads, from Alexander Cherepanov
+Upstream-Author: Christos Zoulas <christos@zoulas.com>
+Date: Tue Dec 16 20:53:05 2014 +0000
+Origin: FILE5_21-10-g445c8fb
+Last-Update: 2015-01-05
+
+(prequisite for TEMP-0000000-B67840)
+
+Index: file-5.14/src/readelf.c
+===================================================================
+--- file-5.14.orig/src/readelf.c
++++ file-5.14/src/readelf.c
+@@ -319,7 +319,7 @@ dophn_core(struct magic_set *ms, int cla
+ 	 * Loop through all the program headers.
+ 	 */
+ 	for ( ; num; num--) {
+-		if (pread(fd, xph_addr, xph_sizeof, off) == -1) {
++		if (pread(fd, xph_addr, xph_sizeof, off) < (ssize_t)xph_sizeof) {
+ 			file_badread(ms);
+ 			return -1;
+ 		}
+@@ -927,6 +927,7 @@ doshn(struct magic_set *ms, int clazz, i
+ 	uint64_t cap_hw1 = 0;	/* SunOS 5.x hardware capabilites */
+ 	uint64_t cap_sf1 = 0;	/* SunOS 5.x software capabilites */
+ 	char name[50];
++	ssize_t namesize;
+ 
+ 	if (size != xsh_sizeof) {
+ 		if (file_printf(ms, ", corrupted section header size") == -1)
+@@ -981,7 +982,7 @@ doshn(struct magic_set *ms, int clazz, i
+ 				    " for note");
+ 				return -1;
+ 			}
+-			if (pread(fd, nbuf, xsh_size, xsh_offset) == -1) {
++			if (pread(fd, nbuf, xsh_size, xsh_offset) < (ssize_t)xsh_size) {
+ 				file_badread(ms);
+ 				free(nbuf);
+ 				return -1;
+@@ -1146,7 +1147,7 @@ dophn_exec(struct magic_set *ms, int cla
+ 	}
+ 
+   	for ( ; num; num--) {
+-		if (pread(fd, xph_addr, xph_sizeof, off) == -1) {
++		if (pread(fd, xph_addr, xph_sizeof, off) < (ssize_t)xph_sizeof) {
+ 			file_badread(ms);
+ 			return -1;
+ 		}

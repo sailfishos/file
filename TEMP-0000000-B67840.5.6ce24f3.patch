@@ -1,0 +1,479 @@
+Subject: Kill -R and replace with -P param=value. Allow setting of 4 parameters: indir, name, shnum, phnum
+Upstream-Author: Christos Zoulas <christos@zoulas.com>
+Date: Thu Nov 27 23:42:58 2014 +0000
+Origin: FILE5_20-36-g6ce24f3
+Last-Update: 2015-01-05
+
+    Kill -R and replace with -P param=value. Allow setting of 4 parameters:
+    indir, name, shnum, phnum.
+
+(prequisite for TEMP-0000000-B67840)
+
+Index: file-5.14/doc/file.man
+===================================================================
+--- file-5.14.orig/doc/file.man
++++ file-5.14/doc/file.man
+@@ -16,7 +16,7 @@
+ .Op Fl F Ar separator
+ .Op Fl f Ar namefile
+ .Op Fl m Ar magicfiles
+-.Op Fl R Ar maxrecursion
++.Op Fl P Ar name=value
+ .Ar
+ .Ek
+ .Nm
+@@ -296,16 +296,20 @@ or
+ attempt to preserve the access time of files analyzed, to pretend that
+ .Nm
+ never read them.
++.It Fl P , Fl Fl parameter Ar name=value
++Set various parameter limits.
++.Bl -column "indir" "Default" "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" -offset indent
++.It Sy "Name" Ta Sy "Default" Ta Sy "Explanation"
++.It Li indir Ta 15 Ta recursion limit for indirect magic
++.It Li name Ta 40 Ta recursion limit for name/use magic
++.It Li phnum Ta 128 Ta max ELF program sections processed
++.It Li shnum Ta 32768 Ta max ELF sections processed
++.El
+ .It Fl r , Fl Fl raw
+ Don't translate unprintable characters to \eooo.
+ Normally
+ .Nm
+ translates unprintable characters to their octal representation.
+-.It Fl R , Fl Fl recursion Ar maxlevel
+-Set the maximum recursion level for indirect type magic or name/use entry
+-invocations.
+-The default is
+-.Dv 15 .
+ .It Fl s , Fl Fl special-files
+ Normally,
+ .Nm
+Index: file-5.14/doc/libmagic.man
+===================================================================
+--- file-5.14.orig/doc/libmagic.man
++++ file-5.14/doc/libmagic.man
+@@ -263,14 +263,31 @@ and
+ .Fn magic_setparam
+ allow getting and setting various limits related to the the magic
+ library.
+-.Bl -column "MAGIC_PARAM_MAX_RECURSION" "size_t" "Default" -offset indent
+-.It Sy "Parameter" Ta Sy "Type" Ta Sy "Default
+-.It Li MAGIC_PARAM_MAX_RECURSION Ta size_t Ta 15
++.Bl -column "MAGIC_PARAM_INDIR_RECURSION" "size_t" "Default" -offset indent
++.It Sy "Parameter" Ta Sy "Type" Ta Sy "Default"
++.It Li MAGIC_PARAM_INDIR_RECURSION Ta size_t Ta 15
++.It Li MAGIC_PARAM_NAME_RECURSION Ta size_t Ta 40
++.It Li MAGIC_PARAM_PHNUM_MAX Ta size_t Ta 128
++.It Li MAGIC_PARAM_SHNUM_MAX Ta size_t Ta 32768
+ .El
++.Pp
++The
++.Dv MAGIC_PARAM_INDIR_RECURSION
++parameter controls how many levels of recursion will be followed for
++indirect magic entries.
++.Pp
+ The
+-.Dv MAGIC_PARAM_MAX_RECURSION
++.Dv MAGIC_PARAM_NAME_RECURSION
+ parameter controls how many levels of recursion will be followed for
+-indirect magic entries or for name/use calls.
++for name/use calls.
++.Pp
++The
++.Dv MAGIC_PARAM_PHNUM_MAX
++parameter controls how many elf program sections will be processed.
++.Pp
++The
++.Dv MAGIC_PARAM_SHNUM_MAX
++parameter controls how many elf sections will be processed.
+ .Pp
+ The
+ .Fn magic_version
+Index: file-5.14/src/ascmagic.c
+===================================================================
+--- file-5.14.orig/src/ascmagic.c
++++ file-5.14/src/ascmagic.c
+@@ -147,7 +147,7 @@ file_ascmagic_with_encoding(struct magic
+ 		    == NULL)
+ 			goto done;
+ 		if ((rv = file_softmagic(ms, utf8_buf,
+-		    (size_t)(utf8_end - utf8_buf), 0, TEXTTEST, text)) == 0)
++		    (size_t)(utf8_end - utf8_buf), 0, 0, TEXTTEST, text)) == 0)
+ 			rv = -1;
+ 	}
+ 
+Index: file-5.14/src/elfclass.h
+===================================================================
+--- file-5.14.orig/src/elfclass.h
++++ file-5.14/src/elfclass.h
+@@ -36,7 +36,7 @@
+ #ifdef ELFCORE
+ 	case ET_CORE:
+ 		phnum = elf_getu16(swap, elfhdr.e_phnum);
+-		if (phnum > MAX_PHNUM)
++		if (phnum > ms->phnum_max)
+ 			return toomany(ms, "program", phnum);
+ 		flags |= FLAGS_IS_CORE;
+ 		if (dophn_core(ms, clazz, swap, fd,
+@@ -49,10 +49,10 @@
+ 	case ET_EXEC:
+ 	case ET_DYN:
+ 		phnum = elf_getu16(swap, elfhdr.e_phnum);
+-		if (phnum > MAX_PHNUM)
++		if (phnum > ms->phnum_max)
+ 			return toomany(ms, "program", phnum);
+ 		shnum = elf_getu16(swap, elfhdr.e_shnum);
+-		if (shnum > MAX_SHNUM)
++		if (shnum > ms->shnum_max)
+ 			return toomany(ms, "section", shnum);
+ 		if (dophn_exec(ms, clazz, swap, fd,
+ 		    (off_t)elf_getu(swap, elfhdr.e_phoff), phnum,
+@@ -62,7 +62,7 @@
+ 		/*FALLTHROUGH*/
+ 	case ET_REL:
+ 		shnum = elf_getu16(swap, elfhdr.e_shnum);
+-		if (shnum > MAX_SHNUM)
++		if (shnum > ms->shnum_max)
+ 			return toomany(ms, "section", shnum);
+ 		if (doshn(ms, clazz, swap, fd,
+ 		    (off_t)elf_getu(swap, elfhdr.e_shoff), shnum,
+Index: file-5.14/src/file.c
+===================================================================
+--- file-5.14.orig/src/file.c
++++ file-5.14/src/file.c
+@@ -101,7 +101,7 @@ private const struct option long_options
+ #undef OPT_LONGONLY
+     {0, 0, NULL, 0}
+ };
+-#define OPTSTRING	"bcCde:f:F:hiklLm:nNprR:svz0"
++#define OPTSTRING	"bcCde:f:F:hiklLm:nNprP:rsvz0"
+ 
+ private const struct {
+ 	const char *name;
+@@ -119,6 +119,17 @@ private const struct {
+ 	{ "tokens",	MAGIC_NO_CHECK_TOKENS }, /* OBSOLETE: ignored for backwards compatibility */
+ };
+ 
++private struct {
++	const char *name;
++	int tag;
++	size_t value;
++} pm[] = {
++	{ "indir",	MAGIC_PARAM_INDIR_RECURSION, 0 },
++	{ "name",	MAGIC_PARAM_NAME_RECURSION, 0 },
++	{ "phnum",	MAGIC_PARAM_PHNUM_MAX, 0 },
++	{ "shnum",	MAGIC_PARAM_SHNUM_MAX, 0 },
++};
++
+ private char *progname;		/* used throughout 		*/
+ 
+ private void usage(void);
+@@ -128,6 +139,8 @@ private void help(void);
+ private int unwrap(struct magic_set *, const char *);
+ private int process(struct magic_set *ms, const char *, int);
+ private struct magic_set *load(const char *, int);
++private void setparam(const char *);
++private void applyparam(magic_t);
+ 
+ 
+ /*
+@@ -140,7 +153,6 @@ main(int argc, char *argv[])
+ 	size_t i;
+ 	int action = 0, didsomefiles = 0, errflg = 0;
+ 	int flags = 0, e = 0;
+-	size_t max_recursion = 0;
+ 	struct magic_set *magic = NULL;
+ 	int longindex;
+ 	const char *magicfile = NULL;		/* where the magic is	*/
+@@ -241,11 +253,12 @@ main(int argc, char *argv[])
+ 			flags |= MAGIC_PRESERVE_ATIME;
+ 			break;
+ #endif
++		case 'P':
++			setparam(optarg);
++			break;
+ 		case 'r':
+ 			flags |= MAGIC_RAW;
+ 			break;
+-		case 'R':
+-			max_recursion = atoi(optarg);
+ 			break;
+ 		case 's':
+ 			flags |= MAGIC_DEVICES;
+@@ -324,16 +337,7 @@ main(int argc, char *argv[])
+ 		if (magic == NULL)
+ 			if ((magic = load(magicfile, flags)) == NULL)
+ 				return 1;
+-		if (max_recursion) {
+-			if (magic_setparam(magic, MAGIC_PARAM_MAX_RECURSION,
+-			    &max_recursion) == -1) {
+-				(void)fprintf(stderr,
+-				    "%s: Can't set recurision %s\n", progname,
+-				    strerror(errno));
+-				return 1;
+-			}
+-		}
+-		break;
++		applyparam(magic);
+ 	}
+ 
+ 	if (optind == argc) {
+@@ -363,6 +367,41 @@ main(int argc, char *argv[])
+ 	return e;
+ }
+ 
++private void
++applyparam(magic_t magic)
++{
++	size_t i;
++
++	for (i = 0; i < __arraycount(pm); i++) {
++		if (pm[i].value == 0)
++			continue;
++		if (magic_setparam(magic, pm[i].tag, &pm[i].value) == -1) {
++			(void)fprintf(stderr, "%s: Can't set %s %s\n", progname,
++				pm[i].name, strerror(errno));
++			exit(1);
++		}
++	}
++}
++
++private void
++setparam(const char *p)
++{
++	size_t i;
++	char *s;
++
++	if ((s = strchr(p, '=')) == NULL)
++		goto badparm;
++
++	for (i = 0; i < __arraycount(pm); i++) {
++		if (strncmp(p, pm[i].name, s - p) != 0)
++			continue;
++		pm[i].value = atoi(s + 1);
++		return;
++	}
++badparm:
++	(void)fprintf(stderr, "%s: Unknown param %s\n", progname, p);
++	exit(1);
++}
+ 
+ private struct magic_set *
+ /*ARGSUSED*/
+Index: file-5.14/src/file.h
+===================================================================
+--- file-5.14.orig/src/file.h
++++ file-5.14/src/file.h
+@@ -401,8 +401,14 @@ struct magic_set {
+ 	/* FIXME: Make the string dynamically allocated so that e.g.
+ 	   strings matched in files can be longer than MAXstring */
+ 	union VALUETYPE ms_value;	/* either number or string */
+-	size_t max_recursion;
+-#define	FILE_MAX_RECURSION	15
++	uint16_t indir_recursion;
++	uint16_t name_recursion;
++	uint16_t shnum_max;
++	uint16_t phnum_max;
++#define	FILE_INDIR_RECURSION	15
++#define	FILE_NAME_RECURSION	40
++#define FILE_ELF_SHNUM		32768
++#define FILE_ELF_PHNUM		128
+ };
+ 
+ /* Type for Unicode characters */
+@@ -441,7 +447,7 @@ protected int file_encoding(struct magic
+     unichar **, size_t *, const char **, const char **, const char **);
+ protected int file_is_tar(struct magic_set *, const unsigned char *, size_t);
+ protected int file_softmagic(struct magic_set *, const unsigned char *, size_t,
+-    size_t, int, int);
++    uint16_t, uint16_t, int, int);
+ protected int file_apprentice(struct magic_set *, const char *, int);
+ protected int file_magicfind(struct magic_set *, const char *, struct mlist *);
+ protected uint64_t file_signextend(struct magic_set *, struct magic *,
+Index: file-5.14/src/funcs.c
+===================================================================
+--- file-5.14.orig/src/funcs.c
++++ file-5.14/src/funcs.c
+@@ -228,7 +228,7 @@ file_buffer(struct magic_set *ms, int fd
+ 
+ 	/* try soft magic tests */
+ 	if ((ms->flags & MAGIC_NO_CHECK_SOFT) == 0)
+-		if ((m = file_softmagic(ms, ubuf, nb, 0, BINTEST,
++		if ((m = file_softmagic(ms, ubuf, nb, 0, 0, BINTEST,
+ 		    looks_text)) != 0) {
+ 			if ((ms->flags & MAGIC_DEBUG) != 0)
+ 				(void)fprintf(stderr, "softmagic %d\n", m);
+Index: file-5.14/src/magic.c
+===================================================================
+--- file-5.14.orig/src/magic.c
++++ file-5.14/src/magic.c
+@@ -488,8 +488,17 @@ public int
+ magic_setparam(struct magic_set *ms, int param, const void *val)
+ {
+ 	switch (param) {
+-	case MAGIC_PARAM_MAX_RECURSION:
+-		ms->max_recursion = *(const size_t *)val;
++	case MAGIC_PARAM_INDIR_RECURSION:
++		ms->indir_recursion = *(const size_t *)val;
++		return 0;
++	case MAGIC_PARAM_NAME_RECURSION:
++		ms->name_recursion = *(const size_t *)val;
++		return 0;
++	case MAGIC_PARAM_PHNUM_MAX:
++		ms->phnum_max = *(const size_t *)val;
++		return 0;
++	case MAGIC_PARAM_SHNUM_MAX:
++		ms->shnum_max = *(const size_t *)val;
+ 		return 0;
+ 	default:
+ 		errno = EINVAL;
+@@ -501,8 +510,17 @@ public int
+ magic_getparam(struct magic_set *ms, int param, void *val)
+ {
+ 	switch (param) {
+-	case MAGIC_PARAM_MAX_RECURSION:
+-		*(size_t *)val = ms->max_recursion;
++	case MAGIC_PARAM_INDIR_RECURSION:
++		*(size_t *)val = ms->indir_recursion;
++		return 0;
++	case MAGIC_PARAM_NAME_RECURSION:
++		*(size_t *)val = ms->name_recursion;
++		return 0;
++	case MAGIC_PARAM_PHNUM_MAX:
++		*(size_t *)val = ms->phnum_max;
++		return 0;
++	case MAGIC_PARAM_SHNUM_MAX:
++		*(size_t *)val = ms->shnum_max;
+ 		return 0;
+ 	default:
+ 		errno = EINVAL;
+Index: file-5.14/src/magic.h
+===================================================================
+--- file-5.14.orig/src/magic.h
++++ file-5.14/src/magic.h
+@@ -102,7 +102,11 @@ int magic_check(magic_t, const char *);
+ int magic_list(magic_t, const char *);
+ int magic_errno(magic_t);
+ 
+-#define MAGIC_PARAM_MAX_RECURSION	0
++#define MAGIC_PARAM_INDIR_RECURSION	0
++#define MAGIC_PARAM_NAME_RECURSION	1
++#define MAGIC_PARAM_PHNUM_MAX		2
++#define MAGIC_PARAM_SHNUM_MAX		3
++
+ int magic_setparam(magic_t, int, const void *);
+ int magic_getparam(magic_t, int, void *);
+ 
+Index: file-5.14/src/softmagic.c
+===================================================================
+--- file-5.14.orig/src/softmagic.c
++++ file-5.14/src/softmagic.c
+@@ -43,10 +43,10 @@ FILE_RCSID("@(#)$File: softmagic.c,v 1.1
+ 
+ 
+ private int match(struct magic_set *, struct magic *, uint32_t,
+-    const unsigned char *, size_t, size_t, int, int, int, size_t, int *, int *,
++    const unsigned char *, size_t, size_t, int, int, int, uint16_t, uint16_t, int *, int *,
+     int *);
+ private int mget(struct magic_set *, const unsigned char *,
+-    struct magic *, size_t, size_t, unsigned int, int, int, int, size_t, int *,
++    struct magic *, size_t, size_t, unsigned int, int, int, int, uint16_t, uint16_t, int *,
+     int *, int *);
+ private int magiccheck(struct magic_set *, struct magic *);
+ private int32_t mprint(struct magic_set *, struct magic *);
+@@ -71,13 +71,13 @@ private void cvt_64(union VALUETYPE *, c
+ /*ARGSUSED1*/		/* nbytes passed for regularity, maybe need later */
+ protected int
+ file_softmagic(struct magic_set *ms, const unsigned char *buf, size_t nbytes,
+-    size_t level, int mode, int text)
++    uint16_t indir_level, uint16_t name_level, int mode, int text)
+ {
+ 	struct mlist *ml;
+ 	int rv, printed_something = 0, need_separator = 0;
+ 	for (ml = ms->mlist[0]->next; ml != ms->mlist[0]; ml = ml->next)
+ 		if ((rv = match(ms, ml->magic, ml->nmagic, buf, nbytes, 0, mode,
+-		    text, 0, level, &printed_something, &need_separator,
++		    text, 0, indir_level, name_level, &printed_something, &need_separator,
+ 		    NULL)) != 0)
+ 			return rv;
+ 
+@@ -114,7 +114,7 @@ file_softmagic(struct magic_set *ms, con
+ private int
+ match(struct magic_set *ms, struct magic *magic, uint32_t nmagic,
+     const unsigned char *s, size_t nbytes, size_t offset, int mode, int text,
+-    int flip, size_t recursion_level, int *printed_something, int *need_separator,
++    int flip, uint16_t indir_level, uint16_t name_level, int *printed_something, int *need_separator,
+     int *returnval)
+ {
+ 	uint32_t magindex = 0;
+@@ -152,7 +152,7 @@ match(struct magic_set *ms, struct magic
+ 
+ 		/* if main entry matches, print it... */
+ 		switch (mget(ms, s, m, nbytes, offset, cont_level, mode, text,
+-		    flip, recursion_level + 1, printed_something,
++		    flip, indir_level, name_level, printed_something,
+ 		    need_separator, returnval)) {
+ 		case -1:
+ 			return -1;
+@@ -239,7 +239,7 @@ match(struct magic_set *ms, struct magic
+ 			}
+ #endif
+ 			switch (mget(ms, s, m, nbytes, offset, cont_level, mode,
+-			    text, flip, recursion_level + 1, printed_something,
++			    text, flip, indir_level, name_level, printed_something,
+ 			    need_separator, returnval)) {
+ 			case -1:
+ 				return -1;
+@@ -1154,7 +1154,7 @@ mcopy(struct magic_set *ms, union VALUET
+ private int
+ mget(struct magic_set *ms, const unsigned char *s, struct magic *m,
+     size_t nbytes, size_t o, unsigned int cont_level, int mode, int text,
+-    int flip, size_t recursion_level, int *printed_something,
++    int flip, uint16_t indir_level, uint16_t name_level, int *printed_something,
+     int *need_separator, int *returnval)
+ {
+ 	uint32_t offset = ms->offset;
+@@ -1164,9 +1164,15 @@ mget(struct magic_set *ms, const unsigne
+ 	union VALUETYPE *p = &ms->ms_value;
+ 	struct mlist ml;
+ 
+-	if (recursion_level >= ms->max_recursion) {
+-		file_error(ms, 0, "recursion nesting (%zu) exceeded",
+-			recursion_level);
++	if (indir_level >= ms->indir_recursion) {
++		file_error(ms, 0, "indirect recursion nesting (%hu) exceeded",
++			indir_level);
++		return -1;
++	}
++
++	if (name_level >= ms->name_recursion) {
++		file_error(ms, 0, "name recursion nesting (%hu) exceeded",
++			name_level);
+ 		return -1;
+ 	}
+ 
+@@ -1745,7 +1751,7 @@ mget(struct magic_set *ms, const unsigne
+ 			return -1;
+ 
+ 		rv = file_softmagic(ms, s + offset, nbytes - offset,
+-		    recursion_level, BINTEST, text);
++		    indir_level + 1, name_level, BINTEST, text);
+ 		if ((ms->flags & MAGIC_DEBUG) != 0)
+ 			fprintf(stderr, "indirect @offs=%u[%d]\n", offset, rv);
+ 
+Index: file-5.14/src/apprentice.c
+===================================================================
+--- file-5.14.orig/src/apprentice.c
++++ file-5.14/src/apprentice.c
+@@ -488,7 +488,10 @@ file_ms_alloc(int flags)
+ 		ms->mlist[i] = NULL;
+ 	ms->file = "unknown";
+ 	ms->line = 0;
+-	ms->max_recursion = FILE_MAX_RECURSION;
++	ms->indir_recursion = FILE_INDIR_RECURSION;
++	ms->name_recursion = FILE_NAME_RECURSION;
++	ms->shnum_max = FILE_ELF_SHNUM;
++	ms->phnum_max = FILE_ELF_PHNUM;
+ 	return ms;
+ free:
+ 	free(ms);

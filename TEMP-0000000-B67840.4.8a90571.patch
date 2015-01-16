@@ -1,0 +1,23 @@
+Subject: Adjust limits better (from NetBSD)
+Upstream-Author: Christos Zoulas <christos@zoulas.com>
+Date: Thu Nov 27 15:16:00 2014 +0000
+Origin: FILE5_20-33-g8a90571
+Last-Update: 2015-01-05
+
+(prequisite for TEMP-0000000-B67840)
+
+diff --git a/src/readelf.c b/src/readelf.c
+index e0b252d..f6b6824 100644
+--- a/src/readelf.c
++++ b/src/readelf.c
+@@ -60,8 +60,8 @@ private uint16_t getu16(int, uint16_t);
+ private uint32_t getu32(int, uint32_t);
+ private uint64_t getu64(int, uint64_t);
+ 
+-#define MAX_PHNUM	256
+-#define	MAX_SHNUM	1024
++#define MAX_PHNUM	128
++#define	MAX_SHNUM	32768
+ 
+ private int
+ toomany(struct magic_set *ms, const char *name, uint16_t num)
