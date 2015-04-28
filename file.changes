@@ -1,3 +1,6 @@
+* Wed Apr 29 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 5.14-4
+- Fix changelog. MER#939
+
 * Thu Jan 15 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 5.14-3
 - Fix CVE-2014-8116, CVE-2014-8117 and several other security vulnerabilities.
 

@@ -5,7 +5,7 @@
 Summary: Python bindings for the libmagic API
 Name: python-magic
 Version: 5.14
-Release: 1
+Release: 4
 License: BSD
 Group: System/Libraries
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
