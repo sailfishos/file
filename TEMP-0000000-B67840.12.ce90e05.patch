@@ -757,15 +757,7 @@ Index: file-5.14/src/readelf.c
  {
  	Elf32_Shdr sh32;
  	Elf64_Shdr sh64;
-@@ -927,7 +995,6 @@ doshn(struct magic_set *ms, int clazz, i
- 	uint64_t cap_hw1 = 0;	/* SunOS 5.x hardware capabilites */
- 	uint64_t cap_sf1 = 0;	/* SunOS 5.x software capabilites */
- 	char name[50];
--	ssize_t namesize;
- 
- 	if (size != xsh_sizeof) {
- 		if (file_printf(ms, ", corrupted section header size") == -1)
-@@ -993,7 +1060,7 @@ doshn(struct magic_set *ms, int clazz, i
+@@ -993,7 +1061,7 @@ doshn(struct magic_set *ms, int clazz, i
  				if (noff >= (off_t)xsh_size)
  					break;
  				noff = donote(ms, nbuf, (size_t)noff,
@@ -774,7 +766,7 @@ Index: file-5.14/src/readelf.c
  				if (noff == 0)
  					break;
  			}
-@@ -1130,7 +1197,8 @@ doshn(struct magic_set *ms, int clazz, i
+@@ -1130,7 +1198,8 @@ doshn(struct magic_set *ms, int clazz, i
   */
  private int
  dophn_exec(struct magic_set *ms, int clazz, int swap, int fd, off_t off,
@@ -784,7 +776,7 @@ Index: file-5.14/src/readelf.c
  {
  	Elf32_Phdr ph32;
  	Elf64_Phdr ph64;
-@@ -1199,7 +1267,7 @@ dophn_exec(struct magic_set *ms, int cla
+@@ -1199,7 +1268,7 @@ dophn_exec(struct magic_set *ms, int cla
  					break;
  				offset = donote(ms, nbuf, offset,
  				    (size_t)bufsize, clazz, swap, align,
@@ -793,7 +785,7 @@ Index: file-5.14/src/readelf.c
  				if (offset == 0)
  					break;
  			}
-@@ -1230,7 +1298,7 @@ file_tryelf(struct magic_set *ms, int fd
+@@ -1230,7 +1299,7 @@ file_tryelf(struct magic_set *ms, int fd
  	int flags = 0;
  	Elf32_Ehdr elf32hdr;
  	Elf64_Ehdr elf64hdr;

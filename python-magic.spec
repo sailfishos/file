@@ -5,7 +5,7 @@
 Summary: Python bindings for the libmagic API
 Name: python-magic
 Version: 5.14
-Release: 4
+Release: 5
 License: BSD
 Group: System/Libraries
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
@@ -42,6 +42,7 @@ Patch32: TEMP-0000000-B67840.11.445c8fb.patch
 Patch33: TEMP-0000000-B67840.12.ce90e05.patch
 Patch34: TEMP-0000000-E110B2.65437ce.patch
 Patch35: fix_case_file_use.patch
+Patch36: CVE-2014-9653.2.445c8fb.patch
 
 URL: http://www.darwinsys.com/file/
 
@@ -123,6 +124,8 @@ file(1) command.
 %patch34 -p1
 #fix_case_file_use.patch
 %patch35 -p1
+#CVE-2014-9653.2.445c8fb.patch
+%patch36 -p1
 
 %build
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \

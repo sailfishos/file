@@ -1,3 +1,7 @@
+* Wed Sep 30 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 5.14-5
+- Fix CVE-2014-9653. Fixes MER#1355
+- Rebase TEMP-0000000-B67840.12.ce90e05.patch
+
 * Wed Apr 29 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 5.14-4
 - Fix changelog. MER#939
 
