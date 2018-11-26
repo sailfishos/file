@@ -8,7 +8,7 @@ Version: 5.35
 Release: 1
 License: BSD
 Group: Applications/File
-Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
+Source0: ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.gz
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}

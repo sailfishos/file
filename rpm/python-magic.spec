@@ -8,7 +8,7 @@ Version: 5.14
 Release: 5
 License: BSD
 Group: System/Libraries
-Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
+Source0: ftp://ftp.astron.com/pub/file/%{name}-%{version}.tar.gz
 
 URL: http://www.darwinsys.com/file/
 
@@ -23,7 +23,7 @@ file(1) command.
 
 %prep
 # Don't use -b -- it will lead to poblems when compiling magic file
-%setup -q -n file-%{version}/upstream
+%setup -q -n %{name}-%{version}/upstream
 
 %build
 autoreconf -f -i
