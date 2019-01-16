@@ -41,6 +41,14 @@ Requires: %{name} = %{version}-%{release}
 The file-devel package contains the header files and libmagic library
 necessary for developing programs using libmagic.
 
+%package doc
+Summary:   Documentation for %{name}
+Group:     Documentation
+Requires:  %{name} = %{version}-%{release}
+
+%description doc
+Man pages for %{name}.
+
 
 %prep
 # Don't use -b -- it will lead to poblems when compiling magic file
@@ -72,8 +80,9 @@ cat magic/Magdir/* > ${RPM_BUILD_ROOT}%{_datadir}/file/magic
 ln -s file/magic ${RPM_BUILD_ROOT}%{_datadir}/magic
 ln -s ../magic ${RPM_BUILD_ROOT}%{_datadir}/misc/magic
 
-# Delete man pages
-rm -rf $RPM_BUILD_ROOT%{_mandir}
+mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}
+install -m0644 -t ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version} \
+        ChangeLog README
 
 
 %clean
@@ -85,7 +94,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc COPYING ChangeLog README
+%license COPYING
 %{_bindir}/*
 
 %files libs
@@ -99,3 +108,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_libdir}/*.so
 %{_includedir}/magic.h
+
+%files doc
+%defattr(-,root,root,-)
+%{_mandir}/man1/%{name}.*
+%{_mandir}/man*/*magic.*
+%{_docdir}/%{name}-%{version}

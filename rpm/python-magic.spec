@@ -21,6 +21,14 @@ This package contains the Python bindings to allow access to the
 libmagic API. The libmagic library is also used by the familiar
 file(1) command.
 
+%package doc
+Summary:   Documentation for %{name}
+Group:     Documentation
+Requires:  %{name} = %{version}-%{release}
+
+%description doc
+Documentation and an example %{name}.
+
 %prep
 # Don't use -b -- it will lead to poblems when compiling magic file
 %setup -q -n file-%{version}/upstream
@@ -37,6 +45,7 @@ cd python
 %{__python} setup.py install  --root ${RPM_BUILD_ROOT}
 %{__install} -d ${RPM_BUILD_ROOT}%{_datadir}/%{name}
 %{__install} -d ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
+%{__install} -D README.md ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
 %{__install} -D example.py ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
 
 %clean
@@ -45,7 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc python/README.md COPYING python/example.py
+%license COPYING
 %{python_sitearch}/magic.py*
 %{python_sitearch}/*egg-info
 
+%files doc
+%defattr(-,root,root,-)
+%{_docdir}/%{name}-%{version}
