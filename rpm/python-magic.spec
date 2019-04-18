@@ -8,7 +8,7 @@ Version: 5.14
 Release: 5
 License: BSD
 Group: System/Libraries
-Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
+Source0: %{name}-%{version}.tar.gz
 
 URL: http://www.darwinsys.com/file/
 
@@ -31,7 +31,7 @@ Documentation and an example %{name}.
 
 %prep
 # Don't use -b -- it will lead to poblems when compiling magic file
-%setup -q -n file-%{version}/upstream
+%setup -q -n %{name}-%{version}/upstream
 
 %build
 autoreconf -f -i
@@ -45,7 +45,7 @@ cd python
 %{__python} setup.py install  --root ${RPM_BUILD_ROOT}
 %{__install} -d ${RPM_BUILD_ROOT}%{_datadir}/%{name}
 %{__install} -d ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
-%{__install} -D README.md ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
+%{__install} -m 0644 -D README.md ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
 %{__install} -D example.py ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
 
 %clean
