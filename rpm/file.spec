@@ -4,11 +4,13 @@
 
 Summary: A utility for determining file types
 Name: file
-Version: 5.35
+Version: 5.37
 Release: 1
 License: BSD
 Group: Applications/File
 Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
+Patch0: 0001-Limit-the-number-of-elements-in-a-vector-found-by-os.patch
+Patch1: 0002-Set-buffer-to-NULL-to-prevent-double-free-Kamil-Dudk.patch
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}
@@ -51,8 +53,8 @@ Man pages for %{name}.
 
 
 %prep
-# Don't use -b -- it will lead to poblems when compiling magic file
-%setup -q -n %{name}-%{version}/upstream
+# Don't use -b -- it will lead to problems when compiling magic file
+%autosetup -n %{name}-%{version}/upstream -p1
 
 %build
 autoreconf -f -i
