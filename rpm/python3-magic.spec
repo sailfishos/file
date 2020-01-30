@@ -2,15 +2,12 @@
 
 Summary: Python bindings for the libmagic API
 Name: python3-magic
-Version: 5.14
-Release: 5
+Version: 5.37
+Release: 0
 License: BSD
-Group: System/Libraries
 Source0: %{name}-%{version}.tar.gz
 Obsoletes: python-magic
-
-URL: http://www.darwinsys.com/file/
-
+URL: https://git.sailfishos.org/mer-core/file
 Requires: file >= %{version}
 BuildRequires: zlib-devel
 BuildRequires: file-devel
@@ -23,14 +20,13 @@ file(1) command.
 
 %package doc
 Summary:   Documentation for %{name}
-Group:     Documentation
 Requires:  %{name} = %{version}-%{release}
 
 %description doc
 Documentation and an example %{name}.
 
 %prep
-# Don't use -b -- it will lead to poblems when compiling magic file
+# Don't use -b -- it will lead to problems when compiling magic file
 %setup -q -n %{name}-%{version}/upstream
 
 %build
@@ -51,7 +47,6 @@ popd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
 
 %files
 %defattr(-,root,root,-)
