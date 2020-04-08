@@ -7,8 +7,7 @@ Name: file
 Version: 5.37
 Release: 1
 License: BSD
-Group: Applications/File
-Source0: ftp://ftp.astron.com/pub/file/file-%{version}.tar.gz
+Source0: %{name}-%{version}.tar.gz
 Patch0: 0001-Limit-the-number-of-elements-in-a-vector-found-by-os.patch
 Patch1: 0002-Set-buffer-to-NULL-to-prevent-double-free-Kamil-Dudk.patch
 URL: http://www.darwinsys.com/file/
@@ -28,7 +27,6 @@ useful utility.
 
 %package libs
 Summary: Libraries for applications using libmagic
-Group:   Applications/File
 
 %description libs
 
@@ -36,7 +34,6 @@ Libraries for applications using libmagic.
 
 %package devel
 Summary:  Libraries and header files for file development
-Group:    Applications/File
 Requires: %{name} = %{version}-%{release}
 
 %description devel
@@ -45,7 +42,6 @@ necessary for developing programs using libmagic.
 
 %package doc
 Summary:   Documentation for %{name}
-Group:     Documentation
 Requires:  %{name} = %{version}-%{release}
 
 %description doc

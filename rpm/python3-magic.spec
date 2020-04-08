@@ -6,6 +6,8 @@ Version: 5.37
 Release: 0
 License: BSD
 Source0: %{name}-%{version}.tar.gz
+Patch0: 0001-Limit-the-number-of-elements-in-a-vector-found-by-os.patch
+Patch1: 0002-Set-buffer-to-NULL-to-prevent-double-free-Kamil-Dudk.patch
 Obsoletes: python-magic
 URL: https://git.sailfishos.org/mer-core/file
 Requires: file >= %{version}
@@ -27,7 +29,7 @@ Documentation and an example %{name}.
 
 %prep
 # Don't use -b -- it will lead to problems when compiling magic file
-%setup -q -n %{name}-%{version}/upstream
+%autosetup -p1 -n %{name}-%{version}/upstream
 
 %build
 autoreconf -f -i
