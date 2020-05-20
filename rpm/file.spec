@@ -1,7 +1,3 @@
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
-%{!?python_sitearch: %define python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
-%define __libtoolize :
-
 Summary: A utility for determining file types
 Name: file
 Version: 5.37
@@ -13,7 +9,6 @@ Patch1: 0002-Set-buffer-to-NULL-to-prevent-double-free-Kamil-Dudk.patch
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: zlib-devel
 
 %description
@@ -56,10 +51,6 @@ Man pages for %{name}.
 autoreconf -f -i
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \
 %configure  --disable-silent-rules
-# remove hardcoded library paths from local libtool
-#sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-#sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
-#export LD_LIBRARY_PATH=%{_builddir}/%{name}-%{version}/src/.libs
 make %{?_smp_mflags}
 
 %check
@@ -82,9 +73,6 @@ mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}
 install -m0644 -t ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version} \
         ChangeLog README
 
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %post libs -p /sbin/ldconfig
 
