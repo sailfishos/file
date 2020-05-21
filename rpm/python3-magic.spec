@@ -1,5 +1,3 @@
-%define __libtoolize :
-
 Summary: Python bindings for the libmagic API
 Name: python3-magic
 Version: 5.37
@@ -34,29 +32,18 @@ Documentation and an example %{name}.
 %build
 autoreconf -f -i
 pushd python
-CFLAGS="%{optflags}" python3 setup.py build
+%py3_build
 popd
 
 %install
 rm -rf $RPM_BUILD_ROOT
 pushd python
-python3 setup.py install  --root ${RPM_BUILD_ROOT}
-install -d ${RPM_BUILD_ROOT}%{_datadir}/%{name}
-install -d ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
-install -m 0644 -D README.md ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
-install -D example.py ${RPM_BUILD_ROOT}/%{_docdir}/%{name}-%{version}
+%py3_install
 popd
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
 %license COPYING
-%{_libdir}/python3*/site-packages/magic.py
-%{_libdir}/python3*/site-packages/__pycache__/magic.cpython*.pyc
-%{_libdir}/python3*/site-packages/*egg-info
-
-%files doc
-%defattr(-,root,root,-)
-%{_docdir}/%{name}-%{version}
+%{python3_sitelib}/magic.py
+%{python3_sitelib}/__pycache__/magic.cpython*.pyc
+%{python3_sitelib}/*egg-info
