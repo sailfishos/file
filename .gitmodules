@@ -1,3 +1,3 @@
 [submodule "upstream"]
 	path = upstream
-	url = https://git.sailfishos.org/mirror/file.git
+	url = https://github.com/sailfishos-mirror/file.git
