@@ -1,11 +1,9 @@
 Summary: A utility for determining file types
 Name: file
-Version: 5.37
+Version: 5.41
 Release: 1
 License: BSD
 Source0: %{name}-%{version}.tar.gz
-Patch0: 0001-Limit-the-number-of-elements-in-a-vector-found-by-os.patch
-Patch1: 0002-Set-buffer-to-NULL-to-prevent-double-free-Kamil-Dudk.patch
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}
@@ -71,7 +69,7 @@ ln -s ../magic ${RPM_BUILD_ROOT}%{_datadir}/misc/magic
 
 mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version}
 install -m0644 -t ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version} \
-        ChangeLog README
+        ChangeLog README.md
 
 
 %post libs -p /sbin/ldconfig
@@ -93,6 +91,7 @@ install -m0644 -t ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version} \
 %files devel
 %defattr(-,root,root,-)
 %{_libdir}/*.so
+%{_libdir}/pkgconfig/libmagic.pc
 %{_includedir}/magic.h
 
 %files doc

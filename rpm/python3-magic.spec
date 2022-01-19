@@ -1,13 +1,10 @@
 Summary: Python bindings for the libmagic API
 Name: python3-magic
-Version: 5.37
+Version: 5.41
 Release: 0
 License: BSD
 Source0: %{name}-%{version}.tar.gz
-Patch0: 0001-Limit-the-number-of-elements-in-a-vector-found-by-os.patch
-Patch1: 0002-Set-buffer-to-NULL-to-prevent-double-free-Kamil-Dudk.patch
-Obsoletes: python-magic
-URL: https://git.sailfishos.org/mer-core/file
+URL: https://github.com/sailfishos/file
 Requires: file >= %{version}
 BuildRequires: zlib-devel
 BuildRequires: file-devel
