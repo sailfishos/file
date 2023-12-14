@@ -1,9 +1,10 @@
 Summary: Python bindings for the libmagic API
 Name: python3-magic
-Version: 5.41
+Version: 5.45
 Release: 0
 License: BSD
 Source0: %{name}-%{version}.tar.gz
+Patch0: file-5.45-time-t.patch
 URL: https://github.com/sailfishos/file
 Requires: file >= %{version}
 BuildRequires: zlib-devel
