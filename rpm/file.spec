@@ -1,9 +1,10 @@
 Summary: A utility for determining file types
 Name: file
-Version: 5.41
+Version: 5.45
 Release: 1
 License: BSD
 Source0: %{name}-%{version}.tar.gz
+Patch0: file-5.45-time-t.patch
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}
@@ -49,18 +50,17 @@ Man pages for %{name}.
 autoreconf -f -i
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \
 %configure  --disable-silent-rules
-make %{?_smp_mflags}
+%make_build
 
 %check
 make -C tests check
 
 %install
-rm -rf $RPM_BUILD_ROOT
 mkdir -p ${RPM_BUILD_ROOT}%{_bindir}
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/misc
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/file
 
-make DESTDIR=${RPM_BUILD_ROOT} install
+%make_install
 rm -f ${RPM_BUILD_ROOT}%{_libdir}/*.la
 
 cat magic/Magdir/* > ${RPM_BUILD_ROOT}%{_datadir}/file/magic
@@ -77,25 +77,21 @@ install -m0644 -t ${RPM_BUILD_ROOT}%{_docdir}/%{name}-%{version} \
 %postun libs -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %license COPYING
 %{_bindir}/*
 
 %files libs
-%defattr(-,root,root,-)
 %{_libdir}/*so.*
 %{_datadir}/magic*
 %{_datadir}/file
 %{_datadir}/misc/*
 
 %files devel
-%defattr(-,root,root,-)
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/libmagic.pc
 %{_includedir}/magic.h
 
 %files doc
-%defattr(-,root,root,-)
 %{_mandir}/man1/%{name}.*
 %{_mandir}/man*/*magic.*
 %{_docdir}/%{name}-%{version}
