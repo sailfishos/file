@@ -1,10 +1,15 @@
 Summary: Python bindings for the libmagic API
 Name: python3-magic
-Version: 5.45
+Version: 5.48
 Release: 0
 License: BSD
 Source0: %{name}-%{version}.tar.gz
-Patch0: file-5.45-time-t.patch
+
+# revert upstream commits (rhbz#2167964)
+# 1. https://github.com/file/file/commit/e1233247bbe4d2d66b891224336a23384a93cce1
+# 2. https://github.com/file/file/commit/f7a65dbf1739a8f8671621e41c5648d1f7e9f6ae
+Patch1: file-5.45-readelf-limit-revert.patch
+
 URL: https://github.com/sailfishos/file
 Requires: file >= %{version}
 BuildRequires: zlib-devel
@@ -34,13 +39,13 @@ pushd python
 popd
 
 %install
-rm -rf $RPM_BUILD_ROOT
 pushd python
 %py3_install
 popd
 
+rm -f ${RPM_BUILD_ROOT}%{_bindir}/realpython
+
 %files
-%defattr(-,root,root,-)
 %license COPYING
 %{python3_sitelib}/magic.py
 %{python3_sitelib}/__pycache__/magic.cpython*.pyc

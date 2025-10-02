@@ -1,11 +1,16 @@
 Summary: A utility for determining file types
 Name: file
-Version: 5.45
+Version: 5.48
 Release: 1
 License: BSD
 Source0: %{name}-%{version}.tar.gz
-Patch0: file-5.45-time-t.patch
-URL: http://www.darwinsys.com/file/
+
+# revert upstream commits (rhbz#2167964)
+# 1. https://github.com/file/file/commit/e1233247bbe4d2d66b891224336a23384a93cce1
+# 2. https://github.com/file/file/commit/f7a65dbf1739a8f8671621e41c5648d1f7e9f6ae
+Patch1: file-5.45-readelf-limit-revert.patch
+
+URL: https://github.com/sailfishos/file
 
 Requires: file-libs = %{version}-%{release}
 BuildRequires: zlib-devel
@@ -49,7 +54,7 @@ Man pages for %{name}.
 %build
 autoreconf -f -i
 CFLAGS="%{optflags} -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE" \
-%configure  --disable-silent-rules
+%configure --disable-libseccomp --disable-silent-rules
 %make_build
 
 %check
