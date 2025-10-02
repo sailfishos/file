@@ -1,10 +1,9 @@
 Summary: A utility for determining file types
 Name: file
-Version: 5.45
+Version: 5.46
 Release: 1
 License: BSD
 Source0: %{name}-%{version}.tar.gz
-Patch0: file-5.45-time-t.patch
 URL: http://www.darwinsys.com/file/
 
 Requires: file-libs = %{version}-%{release}
